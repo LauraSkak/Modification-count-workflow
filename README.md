@@ -5,7 +5,7 @@ This workflow takes Oxford nanopore signal data from raw signal to a csv with mo
 
 This sections explain each command used in the workflow.
 
-![Workflow flowchart](Workflow flowchart.png)
+![Workflow flowchart]("Workflow flowchart.png")
 
 Necessary parameters include:
 
