@@ -1,7 +1,8 @@
 
 def call_SNPs(alignment_file, vcf_file_dir, vcf_outfile, reference, clair3_model_path):
     """
-    FIXME
+    Takes an alignment file and creates a vcf file containing all SNPs found in the .bam file.
+    
     TODO: Maybe i should add the --sample_name tag, so i can later merge the vcf files for all samples.
     """
     inputs = [alignment_file, f'{alignment_file}.bai', reference]
@@ -33,7 +34,7 @@ def call_SNPs(alignment_file, vcf_file_dir, vcf_outfile, reference, clair3_model
 
 def phasing_whatshap(alignment_file, variant_file_dir, reference):
     """
-    FIXME
+    Phases a vcf file based on a .bam file produced by dorado aligner and a .vcf file produced with clair3. The .vcf file is then indexed with tabix, so the resulting files should be a phased .vcf file and a .tbi index file.
     """
     inputs = [alignment_file, f'{variant_file_dir}/merge_output.vcf.gz']
     outputs = [f'{variant_file_dir}/phased.vcf.gz', f'{variant_file_dir}/phased.vcf.gz.tbi']
@@ -65,7 +66,7 @@ def phasing_whatshap(alignment_file, variant_file_dir, reference):
 
 def haplotagging_whatshap(alignment_file, reference, variant_file_dir, phased_bam_file):
     """
-    FIXME
+    Makes a new .bam file containing a haplotag for each read. A .gtf file containing data for continously phased segments are also created.
     """
     inputs = [alignment_file, f'{variant_file_dir}/phased.vcf.gz', f'{variant_file_dir}/phased.vcf.gz.tbi']
     outputs = [phased_bam_file, f'{variant_file_dir}/haplo_blocks.gft']

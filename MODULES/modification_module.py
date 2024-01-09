@@ -1,8 +1,7 @@
 
 def run_modkit(alignment_file, modkit_outfile, reference):
     """
-    FIXME
-    Maybe use --bedgraph
+    Takes an unphased .bam file and creates a methylation count table.
     """
     inputs = [alignment_file]
     outputs = [modkit_outfile]
@@ -29,9 +28,7 @@ def run_modkit(alignment_file, modkit_outfile, reference):
 
 def phasing_modkit(alignment_file, reference, prefix, outfile_dir):
     """
-    FIXME 
-    is used after phasing
-    
+    Takes a phased .bam file and creates a methylation count table for each haplotype.
     """
     inputs = [alignment_file, f'{alignment_file}.bai']
     outputs = [f'{outfile_dir}/{prefix}.bed']
@@ -61,7 +58,7 @@ def phasing_modkit(alignment_file, reference, prefix, outfile_dir):
 
 def run_EPIC_modkit(alignment_file, modkit_outfile, reference):
     """
-    FIXME
+    Takes an unphased .bam file and creates a methylation count table, where strand and modification types are merged. The table only output modifications placed on a CpG site.
     """
     inputs = [alignment_file]
     outputs = [modkit_outfile]

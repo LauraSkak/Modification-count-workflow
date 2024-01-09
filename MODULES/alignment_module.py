@@ -1,7 +1,7 @@
 
 def fai_index_reference(reference, fai_reference):
     """
-    FIXME
+    This function make a fasta index file for the input reference genome.
     """
     inputs = [reference]
     outputs = [fai_reference]
@@ -60,7 +60,10 @@ def align_reads(basecall_infile, reference, alignment_outfile):
 
 def filter_alignment(alignment_infile, filtered_alignment_outfile):
     """
-    FIXME: Should the duplicated reads be filtered. It should them be --exclude-flags 1284
+    This function filters the .bam file produced by dorado aligner. Its filters for reads that are a minimum for 500 bp in length, are mapped to the reference genome, has a minimum mapping quality phred score of 10 and an average read quality phred score above 10.
+    
+    FIXME: Should the duplicated reads be filtered? It should them be --exclude-flags 1284.
+    FIXME: Should the qlen >= 500 part of the expression be removed?
     """
     inputs = [alignment_infile]
     outputs = [filtered_alignment_outfile, f'{filtered_alignment_outfile}.bai']
@@ -95,7 +98,7 @@ def filter_alignment(alignment_infile, filtered_alignment_outfile):
 
 def run_qualimap_on_alignment(alignment_infile, outfile_dir):
     """
-    FIXME
+    This creates a folder contain data and a quality control report for the alignment file using the qualimap software.
     """
     inputs = [alignment_infile]
     outputs = [f'{outfile_dir}/qualimapReport.html']
