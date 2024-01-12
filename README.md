@@ -7,8 +7,8 @@ All software used in the workflow will have an indication of software version. T
 
 This sections explain each command used in the workflow.
 
-![Workflow flowchart]("Workflow flowchart.png")
-![Screenshot](Workflow_flowchart.png)
+
+![Workflow flowchart](Workflow_flowchart.png)
 
 Necessary parameters include:
 
