@@ -1,3 +1,5 @@
+from gwf import AnonymousTarget
+
 
 def fai_index_reference(reference, fai_reference):
     """
@@ -10,7 +12,7 @@ def fai_index_reference(reference, fai_reference):
     
     CONDA_BASE=$(conda info --base)
     source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
+    conda activate samtools
     
     echo "Job ID: $SLURM_JOB_ID\n"
     echo "samtools faidx {ref} -o {fai_ref}"
@@ -21,7 +23,7 @@ def fai_index_reference(reference, fai_reference):
     
     '''.format(ref = reference, fai_ref = fai_reference)
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
 
 
 def align_reads(basecall_infile, reference, alignment_outfile):
@@ -35,7 +37,7 @@ def align_reads(basecall_infile, reference, alignment_outfile):
     
     CONDA_BASE=$(conda info --base)
     source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
+    conda activate ONTmod
     
     echo "Job ID: $SLURM_JOB_ID\n"
     echo "dorado aligner -t 32 {ref} {infile} | samtools sort > {outfile}\n"
@@ -47,6 +49,8 @@ def align_reads(basecall_infile, reference, alignment_outfile):
         | samtools sort \
             > {outfile}
     
+    conda activate samtools
+    
     echo "samtools index -@ 32 {outfile}\n"
 
     samtools index \
@@ -55,15 +59,12 @@ def align_reads(basecall_infile, reference, alignment_outfile):
     
     '''.format(ref=reference, infile=basecall_infile, outfile=alignment_outfile)
     
-    return inputs, outputs, options, spec
-
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
+    
 
 def filter_alignment(alignment_infile, filtered_alignment_outfile):
     """
-    This function filters the .bam file produced by dorado aligner. Its filters for reads that are a minimum for 500 bp in length, are mapped to the reference genome, has a minimum mapping quality phred score of 10 and an average read quality phred score above 10.
-    
-    FIXME: Should the duplicated reads be filtered? It should them be --exclude-flags 1284.
-    FIXME: Should the qlen >= 500 part of the expression be removed?
+    This function filters the .bam file produced by dorado aligner. Its filters for reads that are a minimum for 500 bp in length, are the primary mapped read to the reference genome (no duplications), has a minimum mapping quality phred score of 10 and an average read quality phred score above 10.
     """
     inputs = [alignment_infile]
     outputs = [filtered_alignment_outfile, f'{filtered_alignment_outfile}.bai']
@@ -72,57 +73,25 @@ def filter_alignment(alignment_infile, filtered_alignment_outfile):
     
     CONDA_BASE=$(conda info --base)
     source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
+    conda activate samtools
 
     echo "Job ID: $SLURM_JOB_ID\n"
-
-    echo "samtools view --threads 16 --bam --with-header --min-qlen 500 --exclude-flags 260 --expr "avg(qual) >= 10 && qlen >= 500" --min-MQ 10 {infile} > {outfile}"
     
     samtools view \
         --threads 16 \
         --bam --with-header \
         --min-qlen 500 \
-        --exclude-flags 260 \
-        --expr "avg(qual) >= 10 && qlen >= 500" \
-        --min-MQ 10 \
-        {infile} \
-    > {outfile}
+        --excl-flags 1284 \
+        --expr "avg(qual) >= 10" \
+        --min-MQ  10 \
+        {infile} > {outfile}
     
     echo "samtools index {outfile}\n"
     
     samtools index {outfile}
     
     '''.format(infile=alignment_infile, outfile=filtered_alignment_outfile)
-    
-    return inputs, outputs, options, spec
+        
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
 
-def run_qualimap_on_alignment(alignment_infile, outfile_dir):
-    """
-    This creates a folder contain data and a quality control report for the alignment file using the qualimap software.
-    """
-    inputs = [alignment_infile]
-    outputs = [f'{outfile_dir}/qualimapReport.html']
-    options = {"walltime":"12:00:00","account":"sexChromosomes", "memory":"36gb", "cores": 36}
-    spec = '''
-    
-    CONDA_BASE=$(conda info --base)
-    source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
-
-    echo "Job ID: $SLURM_JOB_ID\n"
-    
-    echo "qualimap bamqc \
-        -bam {infile} \
-        -outdir {out_dir} \
-        -nt 36 \
-        --java-mem-size=32G\n"
-    
-    qualimap bamqc \
-        -bam {infile} \
-        -outdir {out_dir} \
-        -nt 36 \
-        --java-mem-size=32G
-    
-    '''.format(infile=alignment_infile, out_dir=outfile_dir)
-    
-    return inputs, outputs, options, spec
+#     echo "samtools view --threads 16 --bam --with-header --min-qlen 500 --excl-flags 1284 --expr "avg(qual) >= 10" --min-MQ  10 {infile} > {outfile}"

@@ -1,4 +1,6 @@
 
+from gwf import AnonymousTarget
+
 def run_modkit(alignment_file, modkit_outfile, reference):
     """
     Takes an unphased .bam file and creates a methylation count table.
@@ -10,7 +12,7 @@ def run_modkit(alignment_file, modkit_outfile, reference):
     
     CONDA_BASE=$(conda info --base)
     source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
+    conda activate ONT
 
     echo "Job ID: $SLURM_JOB_ID"
     echo "modkit pileup {infile} {outfile} --ref {ref} --threads 16"
@@ -23,7 +25,7 @@ def run_modkit(alignment_file, modkit_outfile, reference):
     
     '''.format(infile = alignment_file, outfile = modkit_outfile, ref = reference)
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
 
 
 def phasing_modkit(alignment_file, reference, prefix, outfile_dir):
@@ -37,7 +39,7 @@ def phasing_modkit(alignment_file, reference, prefix, outfile_dir):
     
     CONDA_BASE=$(conda info --base)
     source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
+    conda activate ONT
 
     echo "Job ID: $SLURM_JOB_ID"
     echo "modkit pileup {infile} {prefix}.bed --ref {ref} --partition-tag HP --prefix {prefix} --threads 16"
@@ -54,7 +56,8 @@ def phasing_modkit(alignment_file, reference, prefix, outfile_dir):
     
     '''.format(ref = reference, infile = alignment_file, prefix=prefix, out_dir = outfile_dir)
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
+
 
 def run_EPIC_modkit(alignment_file, modkit_outfile, reference):
     """
@@ -67,7 +70,7 @@ def run_EPIC_modkit(alignment_file, modkit_outfile, reference):
     
     CONDA_BASE=$(conda info --base)
     source $CONDA_BASE/etc/profile.d/conda.sh
-    conda activate epigen
+    conda activate ONT
 
     echo "Job ID: $SLURM_JOB_ID"
     echo "modkit pileup {infile} {outfile} --ref {ref} --threads 16"
@@ -78,8 +81,9 @@ def run_EPIC_modkit(alignment_file, modkit_outfile, reference):
         --threads 16 \
         --combine-mods \
         --combine-strands \
+        --only-tabs \
         --cpg
     
     '''.format(infile = alignment_file, outfile = modkit_outfile, ref = reference)
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)

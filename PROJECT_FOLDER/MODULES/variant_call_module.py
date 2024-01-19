@@ -1,4 +1,6 @@
 
+from gwf import AnonymousTarget
+
 def call_SNPs(alignment_file, vcf_file_dir, vcf_outfile, reference, clair3_model_path):
     """
     Takes an alignment file and creates a vcf file containing all SNPs found in the .bam file.
@@ -29,7 +31,7 @@ def call_SNPs(alignment_file, vcf_file_dir, vcf_outfile, reference, clair3_model
     
     '''.format(infile = alignment_file, ref=reference, model_path = clair3_model_path, out_dir = vcf_file_dir)
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
 
 
 def phasing_whatshap(alignment_file, variant_file_dir, reference):
@@ -62,7 +64,8 @@ def phasing_whatshap(alignment_file, variant_file_dir, reference):
     
     '''.format(ref = reference, phased_variant_outfile = f'{variant_file_dir}/phased.vcf.gz', vcf_infile = f'{variant_file_dir}/merge_output.vcf.gz', bam_infile = alignment_file)
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
+
 
 def haplotagging_whatshap(alignment_file, reference, variant_file_dir, phased_bam_file):
     """
@@ -93,14 +96,17 @@ def haplotagging_whatshap(alignment_file, reference, variant_file_dir, phased_ba
         --bam --with-header \
     > {phased_bam_outfile}
 
-    echo "samtools index -@ 32 {phased_bam_outfile}"
-    
-    samtools index -@ 32 {phased_bam_outfile}
-
     echo "whatshap stats --gtf {haplo_block_outfile} {phased_variant_outfile}"
     
     whatshap stats --gtf {haplo_block_outfile} {phased_variant_outfile}
     
+    
+    conda activate samtools
+    
+    echo "samtools index -@ 32 {phased_bam_outfile}"
+    
+    samtools index -@ 32 {phased_bam_outfile}
+    
     '''.format(ref = reference, phased_variant_outfile = f'{variant_file_dir}/phased.vcf.gz', bam_infile = alignment_file, phased_bam_outfile = phased_bam_file, haplo_block_outfile = f'{variant_file_dir}/haplo_blocks.gft')
     
-    return inputs, outputs, options, spec
+    return AnonymousTarget(inputs=inputs, outputs=outputs, options=options, spec=spec)
